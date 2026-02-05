@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Activity, Upload, User, LayoutDashboard, Database, AlertCircle } from 'lucide-react';
 
 export default function App() {
-  const [tab, setTab] = useState('single'); // 'single' hoặc 'batch'
+  const [tab, setTab] = useState('single');
   const [result, setResult] = useState(null);
   const [batchResults, setBatchResults] = useState([]);
   const [form, setForm] = useState({ tenure: 1, MonthlyCharges: 70, TotalCharges: 70 });
@@ -22,7 +22,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] flex">
-      {/* Sidebar chuyên nghiệp */}
+      {/* Sidebar */}
       <div className="w-64 bg-slate-900 text-white p-6 hidden md:block">
         <div className="flex items-center gap-3 mb-10 text-blue-400">
           <Activity size={28} /> <span className="font-black tracking-tighter text-xl">3G TELECOM AI</span>

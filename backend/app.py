@@ -36,17 +36,14 @@ def predict():
     try:
         data = request.json
         print(f"--- Dữ liệu nhận từ Web: {data}")
-
-        # Khởi tạo DataFrame với đúng danh sách cột mô hình yêu cầu (tất cả = 0)
+        # 2. Tạo DataFrame trống với đủ cột features
         df_final = pd.DataFrame(0, index=[0], columns=features)
 
         # 3. Ánh xạ dữ liệu từ React (tenure) sang Model (Tenure)
-        # Chúng ta gán thủ công để đảm bảo khớp hoàn hảo tên cột viết hoa/thường
         df_final['Tenure'] = pd.to_numeric(data.get('tenure'), errors='coerce') or 0
         df_final['MonthlyCharges'] = pd.to_numeric(data.get('MonthlyCharges'), errors='coerce') or 0
         df_final['TotalCharges'] = pd.to_numeric(data.get('TotalCharges'), errors='coerce') or 0
 
-        # Ánh xạ các cột phân loại (Dựa trên key từ React gửi lên)
         category_map = {
             'Gender': 'Gender',
             'InternetService': 'InternetService',
@@ -60,14 +57,13 @@ def predict():
                 mapping_dict = MAPPINGS.get(react_key, {})
                 df_final.at[0, model_key] = mapping_dict.get(val, 0)
 
-        # Điền các cột còn thiếu (Partner, Dependents...) nếu có trong data
+        # Điền các cột còn thiếu
         for key in ['Partner', 'Dependents']:
             if key in df_final.columns:
                 df_final.at[0, key] = MAPPINGS['Partner'].get(data.get(key.lower()), 0)
 
         # 4. Chuẩn hóa (Scaling) các cột số
         num_cols_to_scale = ['Tenure', 'MonthlyCharges', 'TotalCharges']
-        # Chỉ scale nếu các cột này thực sự tồn tại trong danh sách features của model
         cols_present = [c for c in num_cols_to_scale if c in df_final.columns]
         if cols_present:
             df_final[cols_present] = scaler.transform(df_final[cols_present])
@@ -101,10 +97,8 @@ def predict_batch():
         
         results = []
         for _, row in df_input.iterrows():
-            # Tạo DF trống với đủ cột features
             df_row = pd.DataFrame(0, index=[0], columns=features)
             
-            # Mapping dữ liệu từ file (Giả định file có tên cột khớp hoặc ta map lại)
             df_row['Tenure'] = pd.to_numeric(row.get('Tenure', 0))
             df_row['MonthlyCharges'] = pd.to_numeric(row.get('MonthlyCharges', 0))
             df_row['TotalCharges'] = pd.to_numeric(row.get('TotalCharges', 0))
@@ -120,7 +114,6 @@ def predict_batch():
                     df_row.at[0, model_key] = mapping_dict.get(val, 0)
             for key in ['Partner', 'Dependents']:
                 if key in df_row.columns:
-                    # Dùng chung mapping của Partner vì cùng là Yes/No
                     df_row.at[0, key] = MAPPINGS['Partner'].get(row.get(key, 'No'), 0)
 
             # Xử lý các giá trị thiếu hoặc không hợp lệ
@@ -145,5 +138,4 @@ def predict_batch():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == '__main__':
-    # Chạy Flask ở port 5000
     app.run(port=5000, debug=True)

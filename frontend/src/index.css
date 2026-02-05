@@ -10,12 +10,10 @@
   }
 }
 
-/* Hiệu ứng nảy khi hiện kết quả đơn lẻ */
 .animate-bounce-in {
   animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
 }
 
-/* Hiệu ứng mượt mà khi chuyển đổi giữa tab Single và Batch */
 .fade-in {
   animation: fadeIn 0.3s ease-in forwards;
 }
